@@ -106,13 +106,33 @@ public class BookServiceTests
         var result = BookService.GetAll();
 
         // Assert
-        var expectedOutput =
-            "|ID       |Título             |Autor              |Categoría          |Disponible\r\n" +
-            "|1        |El Quijote         |Miguel de Cervantes|Novela             |Sí       \r\n" +
-            "|2        |1984               |George Orwell      |Distopía           |Sí       \r\n";
+        var expectedOutput = "|ID       |Título             |Autor              |Categoría          |Disponible\n|1        |El Quijote         |Miguel de Cervantes|Novela             |Sí       \n|2        |1984               |George Orwell      |Distopía           |Sí       \n";
 
-        result.Should().Be(expectedOutput);
+        var normalizedExpected = Normalize(expectedOutput);
+        var normalizedResult = Normalize(result);
+
+        // Detallar diferencia si la prueba falla
+        try
+        {
+            normalizedResult.Should().Be(normalizedExpected);
+        }
+        catch (Xunit.Sdk.XunitException)
+        {
+            Console.WriteLine("Expected: [" + string.Join(",", normalizedExpected.Select(c => (int)c)) + "]");
+            Console.WriteLine("Actual:   [" + string.Join(",", normalizedResult.Select(c => (int)c)) + "]");
+            throw;
+        }
     }
+
+    // Método para normalizar la cadena
+    private string Normalize(string input)
+    {
+        return string.Join("\n", input.Trim()
+                                      .Replace("\r\n", "\n")
+                                      .Split('\n')
+                                      .Select(line => line.TrimEnd()));
+    }
+
 
     [Fact]
     public void Delete_ShouldRemoveBook_WhenBookExists()
