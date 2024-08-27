@@ -20,11 +20,6 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
-    - name: Set up culture and encoding
-      run: |
-        export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
-        export LANG="es_ES.UTF-8"
-
     - name: Restore dependencies
       run: dotnet restore
 
@@ -32,4 +27,4 @@ jobs:
       run: dotnet build --no-restore --configuration Release
 
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --verbosity normal
