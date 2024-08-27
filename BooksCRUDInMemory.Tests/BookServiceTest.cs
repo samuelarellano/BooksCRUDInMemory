@@ -106,7 +106,7 @@ public class BookServiceTests
         var result = BookService.GetAll();
 
         // Assert
-        var expectedOutput = "|ID       |Título             |Autor              |Categoría          |Disponible\n|1        |El Quijote         |Miguel de Cervantes|Novela             |Sí       \n|2        |1984               |George Orwell      |Distopía           |Sí       \n";
+        var expectedOutput = $@"|ID       |Título             |Autor              |Categoría          |Disponible\n|1        |El Quijote         |Miguel de Cervantes|Novela             |Sí       \n|2        |1984               |George Orwell      |Distopía           |Sí       \n";
 
         var normalizedExpected = Normalize(expectedOutput);
         var normalizedResult = Normalize(result);
