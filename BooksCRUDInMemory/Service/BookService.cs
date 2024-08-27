@@ -1,26 +1,43 @@
 ﻿namespace BooksCRUDInMemory.Service;
 
+public interface IConsoleWrapper
+{
+    void WriteLine(string message);
+    string ReadLine();
+}
+
+public class ConsoleWrapper : IConsoleWrapper
+{
+    public void WriteLine(string message) => Console.WriteLine(message);
+    public string ReadLine() => Console.ReadLine() ?? string.Empty;
+}
+
 public static class BookService
 {
     private static List<Book> books;
+    private static IConsoleWrapper _consoleWrapper;
 
-    //Constructor estático
     static BookService()
     {
         books = new List<Book>();
+        _consoleWrapper = new ConsoleWrapper();
+    }
+
+    public static void SetConsoleWrapper(IConsoleWrapper consoleWrapper)
+    {
+        _consoleWrapper = consoleWrapper;
     }
 
     public static string Add()
     {
-        Console.WriteLine("Añadiendo un libro...");
-        Console.WriteLine("Ingrese el titulo del libro:");
-        string title = ValidateInput.RequestInput(Console.ReadLine() ?? string.Empty);
-        Console.WriteLine("Ingrese el autor del libro:");
-        string author = ValidateInput.RequestInput(Console.ReadLine() ?? string.Empty);
-        Console.WriteLine("Ingrese la categoria del libro:");
-        string category = ValidateInput.RequestInput(Console.ReadLine() ?? string.Empty);
+        _consoleWrapper.WriteLine("Añadiendo un libro...");
+        _consoleWrapper.WriteLine("Ingrese el titulo del libro:");
+        string title = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
+        _consoleWrapper.WriteLine("Ingrese el autor del libro:");
+        string author = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
+        _consoleWrapper.WriteLine("Ingrese la categoria del libro:");
+        string category = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
 
-        // Crear un nuevo libro con la información ingresada por consola
         var book = new Book
         {
             Id = books.Count + 1,
@@ -36,16 +53,15 @@ public static class BookService
 
     public static string Update()
     {
-        Console.WriteLine("Actualizar Libro");
-
-        Console.WriteLine("Ingrese el Id del libro");
-        int.TryParse(Console.ReadLine(), out int id);
-        Console.WriteLine("Ingrese el titulo del libro");
-        string title = ValidateInput.RequestInput(Console.ReadLine() ?? string.Empty);
-        Console.WriteLine("Ingrese el autor del libro");
-        string author = ValidateInput.RequestInput(Console.ReadLine() ?? string.Empty);
-        Console.WriteLine("Ingrese la categoria del libro");
-        string category = ValidateInput.RequestInput(Console.ReadLine() ?? string.Empty);
+        _consoleWrapper.WriteLine("Actualizar Libro");
+        _consoleWrapper.WriteLine("Ingrese el Id del libro");
+        int.TryParse(_consoleWrapper.ReadLine(), out int id);
+        _consoleWrapper.WriteLine("Ingrese el titulo del libro");
+        string title = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
+        _consoleWrapper.WriteLine("Ingrese el autor del libro");
+        string author = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
+        _consoleWrapper.WriteLine("Ingrese la categoria del libro");
+        string category = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
 
         var book = books.FirstOrDefault(x => x.Id == id);
 
@@ -63,8 +79,7 @@ public static class BookService
 
     public static string GetAll()
     {
-        string message = string.Empty;
-        Console.WriteLine("Listado de Libros");
+        _consoleWrapper.WriteLine("Listado de Libros");
 
         if (!books.Any())
             return "No existen libros en memoria";
@@ -74,17 +89,15 @@ public static class BookService
         foreach (var book in books)
         {
             builder.AppendLine($"|{book.Id.ToString().PadRight(9)}|{book.Title.PadRight(19)}|{book.Author.PadRight(19)}|{book.Category.PadRight(19)}|{(book.IsAvailable ? "Sí" : "No").PadRight(9)}");
-
         }
         return builder.ToString();
     }
+
     public static string Delete()
     {
-        Console.WriteLine("Eliminar Libro");
-
-        Console.WriteLine("Ingrese el Id del libro");
-        int.TryParse(Console.ReadLine(), out int id);
-
+        _consoleWrapper.WriteLine("Eliminar Libro");
+        _consoleWrapper.WriteLine("Ingrese el Id del libro");
+        int.TryParse(_consoleWrapper.ReadLine(), out int id);
 
         var book = books.FirstOrDefault(x => x.Id == id);
 
@@ -100,11 +113,9 @@ public static class BookService
 
     public static string GetById()
     {
-        Console.WriteLine("Búsqueda de Libro por ID");
-
-        Console.WriteLine("Ingrese el Id del libro");
-        int.TryParse(Console.ReadLine(), out int id);
-
+        _consoleWrapper.WriteLine("Búsqueda de Libro por ID");
+        _consoleWrapper.WriteLine("Ingrese el Id del libro");
+        int.TryParse(_consoleWrapper.ReadLine(), out int id);
 
         var book = books.FirstOrDefault(x => x.Id == id);
 
@@ -113,6 +124,7 @@ public static class BookService
             return $"El libro con Id {id} no existe";
         }
 
+        
         var builder = new StringBuilder();
         builder.AppendLine("|ID".PadRight(10) + "|Título".PadRight(20) + "|Autor".PadRight(20) + "|Categoría".PadRight(20) + "|Disponible".PadRight(10));
         builder.AppendLine($"|{book.Id.ToString().PadRight(9)}|{book.Title.PadRight(19)}|{book.Author.PadRight(19)}|{book.Category.PadRight(19)}|{(book.IsAvailable ? "Sí" : "No").PadRight(9)}");
