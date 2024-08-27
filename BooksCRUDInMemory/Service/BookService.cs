@@ -32,11 +32,11 @@ public static class BookService
     {
         _consoleWrapper.WriteLine("Añadiendo un libro...");
         _consoleWrapper.WriteLine("Ingrese el titulo del libro:");
-        string title = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
+        string title = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty, _consoleWrapper);
         _consoleWrapper.WriteLine("Ingrese el autor del libro:");
-        string author = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
+        string author = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty, _consoleWrapper);
         _consoleWrapper.WriteLine("Ingrese la categoria del libro:");
-        string category = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
+        string category = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty, _consoleWrapper);
 
         var book = new Book
         {
@@ -57,11 +57,11 @@ public static class BookService
         _consoleWrapper.WriteLine("Ingrese el Id del libro");
         int.TryParse(_consoleWrapper.ReadLine(), out int id);
         _consoleWrapper.WriteLine("Ingrese el titulo del libro");
-        string title = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
+        string title = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty, _consoleWrapper);
         _consoleWrapper.WriteLine("Ingrese el autor del libro");
-        string author = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
+        string author = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty, _consoleWrapper);
         _consoleWrapper.WriteLine("Ingrese la categoria del libro");
-        string category = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty);
+        string category = ValidateInput.RequestInput(_consoleWrapper.ReadLine() ?? string.Empty, _consoleWrapper);
 
         var book = books.FirstOrDefault(x => x.Id == id);
 

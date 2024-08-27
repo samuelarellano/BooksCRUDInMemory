@@ -8,23 +8,23 @@ namespace BooksCRUDInMemory.Utils
 {
     public static class ValidateInput
     {
-        private static IConsoleWrapper _consoleWrapper;
+        private static IConsoleWrapper? _consoleWrapper;
 
         public static void SetConsoleWrapper(IConsoleWrapper consoleWrapper)
         {
             _consoleWrapper = consoleWrapper;
         }
 
-        public static string RequestInput(string message)
+        public static string RequestInput(string message, IConsoleWrapper? _consoleWrapper)
         {
             string input;
             do
             {
-                _consoleWrapper.WriteLine(message);
-                input = _consoleWrapper.ReadLine() ?? string.Empty; // Garantiza que input no sea null
+                _consoleWrapper?.WriteLine(message);
+                input = _consoleWrapper?.ReadLine() ?? string.Empty; // Garantiza que input no sea null
                 if (string.IsNullOrWhiteSpace(input))
                 {
-                    _consoleWrapper.WriteLine("No haz introducido la información requerida.");
+                    _consoleWrapper?.WriteLine("No haz introducido la información requerida.");
                 }
             } while (string.IsNullOrWhiteSpace(input));
             return input;

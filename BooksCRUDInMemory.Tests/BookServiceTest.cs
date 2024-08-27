@@ -1,242 +1,213 @@
 using BooksCRUDInMemory.Service;
 using BooksCRUDInMemory.Utils;
+using FluentAssertions;
 using Moq;
 
-namespace BooksCRUDInMemory.Tests
+namespace BooksCRUDInMemory.Tests;
+
+public class BookServiceTests
 {
-    public class BookServiceTests
+    private Mock<IConsoleWrapper> _consoleWrapperMock;
+
+    public BookServiceTests()
     {
-        private Mock<IConsoleWrapper> _consoleWrapperMock;
+        _consoleWrapperMock = new Mock<IConsoleWrapper>();
+    }
 
-        public BookServiceTests()
-        {
-            _consoleWrapperMock = new Mock<IConsoleWrapper>();
-        }
+    [Fact]
+    public void Add_ShouldAddBookToList()
+    {
+        // Arrange
+        var consoleMock = new Mock<IConsoleWrapper>();
+        consoleMock.SetupSequence(x => x.ReadLine())
+            .Returns("")
+            .Returns("El Quijote")
+            .Returns("")
+            .Returns("Miguel de Cervantes")
+            .Returns("")
+            .Returns("Novela");
 
-        [Fact]
-        public void Add_ShouldAddBookToList()
-        {
-            // Arrange
-            var consoleMock = new Mock<IConsoleWrapper>();
-            consoleMock.SetupSequence(x => x.ReadLine())
-                .Returns("") // Primer intento vacío para title, repite hasta que se proporcione una entrada válida
-                .Returns("El Quijote") // Entrada válida para title
-                .Returns("") // Primer intento vacío para author
-                .Returns("Miguel de Cervantes") // Entrada válida para author
-                .Returns("") // Primer intento vacío para category
-                .Returns("Novela"); // Entrada válida para category
+        BookService.SetConsoleWrapper(consoleMock.Object);
+        ValidateInput.SetConsoleWrapper(consoleMock.Object);
 
-            BookService.SetConsoleWrapper(consoleMock.Object);
-            ValidateInput.SetConsoleWrapper(consoleMock.Object);
+        // Act
+        var result = BookService.Add();
 
-            // Act
-            var result = BookService.Add();
+        // Assert
+        result.Should().Be("El libro El Quijote ha sido agregado correctamente en el sistema");
+        consoleMock.Verify(x => x.WriteLine(It.IsAny<string>()), Times.AtLeast(7));
+        consoleMock.Verify(x => x.ReadLine(), Times.Exactly(6));
+    }
 
-            // Assert
-            Assert.Equal("El libro El Quijote ha sido agregado correctamente en el sistema", result);
-            consoleMock.Verify(x => x.WriteLine(It.IsAny<string>()), Times.AtLeast(7)); // Verifica que WriteLine se llame al menos 7 veces.
-            consoleMock.Verify(x => x.ReadLine(), Times.Exactly(6)); // Verifica que ReadLine se llame exactamente 6 veces.
-        }
+    [Fact]
+    public void Update_ShouldUpdateBook()
+    {
+        // Arrange
+        var consoleMock = new Mock<IConsoleWrapper>();
 
-        [Fact]
-        public void Update_ShouldUpdateBook()
-        {
-            // Arrange
-            var consoleMock = new Mock<IConsoleWrapper>();
+        consoleMock.SetupSequence(cw => cw.ReadLine())
+            .Returns("")
+            .Returns("El Quijote")
+            .Returns("")
+            .Returns("Miguel de Cervantes")
+            .Returns("")
+            .Returns("Novela");
 
-            // Añadir un libro primero para poder actualizarlo
-            consoleMock.SetupSequence(cw => cw.ReadLine())
-                .Returns("") // Primer intento vacío para title, repite hasta que se proporcione una entrada válida
-                .Returns("El Quijote") // Entrada válida para title
-                .Returns("") // Primer intento vacío para author
-                .Returns("Miguel de Cervantes") // Entrada válida para author
-                .Returns("") // Primer intento vacío para category
-                .Returns("Novela"); // Entrada válida para category
+        BookService.SetConsoleWrapper(consoleMock.Object);
+        ValidateInput.SetConsoleWrapper(consoleMock.Object);
 
-            // Configurar el BookService y ValidateInput con el mock
-            BookService.SetConsoleWrapper(consoleMock.Object);
-            ValidateInput.SetConsoleWrapper(consoleMock.Object);
+        BookService.Add();
 
-            BookService.Add(); // Añadir el libro inicial
+        consoleMock.SetupSequence(cw => cw.ReadLine())
+            .Returns("1")
+            .Returns("")
+            .Returns("Updated Title")
+            .Returns("")
+            .Returns("Updated Author")
+            .Returns("")
+            .Returns("Updated Category");
 
-            // Configurar el mock para simular la entrada del usuario
-            consoleMock.SetupSequence(cw => cw.ReadLine())
-                .Returns("1")  // Id del libro
-                .Returns("")
-                .Returns("Updated Title")  // Título actualizado
-                .Returns("")
-                .Returns("Updated Author")  // Autor actualizado
-                .Returns("")
-                .Returns("Updated Category");  // Categoría actualizada
+        BookService.SetConsoleWrapper(consoleMock.Object);
 
-            BookService.SetConsoleWrapper(consoleMock.Object);
+        var expectedMessage = "El libro con el id 1 ha sido actualizado correctamente";
 
+        // Act
+        var result = BookService.Update();
 
-            var expectedMessage = "El libro con el id 1 ha sido actualizado correctamente";
+        // Assert
+        result.Should().Be(expectedMessage);
+    }
 
-            // Act
-            var result = BookService.Update();
+    [Fact]
+    public void GetAll_ShouldReturnBooksList()
+    {
+        // Arrange
+        _consoleWrapperMock.SetupSequence(cw => cw.ReadLine())
+            .Returns("")
+            .Returns("El Quijote")
+            .Returns("")
+            .Returns("Miguel de Cervantes")
+            .Returns("")
+            .Returns("Novela")
+            .Returns("")
+            .Returns("1984")
+            .Returns("")
+            .Returns("George Orwell")
+            .Returns("")
+            .Returns("Distopía");
 
-            // Assert
-            Assert.Equal(expectedMessage, result);
-        }
+        BookService.SetConsoleWrapper(_consoleWrapperMock.Object);
+        ValidateInput.SetConsoleWrapper(_consoleWrapperMock.Object);
 
+        BookService.Add();
+        BookService.Add();
 
+        // Act
+        var result = BookService.GetAll();
 
-        [Fact]
-        public void GetAll_ShouldReturnBooksList()
-        {
-            // Arrange
+        // Assert
+        var expectedOutput =
+            "|ID       |Título             |Autor              |Categoría          |Disponible\r\n" +
+            "|1        |El Quijote         |Miguel de Cervantes|Novela             |Sí       \r\n" +
+            "|2        |1984               |George Orwell      |Distopía           |Sí       \r\n";
 
+        result.Should().Be(expectedOutput);
+    }
 
-            // Configurar el mock para simular la entrada del usuario
-            _consoleWrapperMock.SetupSequence(cw => cw.ReadLine())
-                .Returns("")                 // Primer intento vacío para título
-                .Returns("El Quijote")       // Título del primer libro
-                .Returns("")                 // Primer intento vacío para autor
-                .Returns("Miguel de Cervantes") // Autor del primer libro
-                .Returns("")                 // Primer intento vacío para categoría
-                .Returns("Novela")           // Categoría del primer libro
-                .Returns("")                 // Primer intento vacío para título del segundo libro
-                .Returns("1984")             // Título del segundo libro
-                .Returns("")                 // Primer intento vacío para autor del segundo libro
-                .Returns("George Orwell")    // Autor del segundo libro
-                .Returns("")                 // Primer intento vacío para categoría del segundo libro
-                .Returns("Distopía");        // Categoría del segundo libro
+    [Fact]
+    public void Delete_ShouldRemoveBook_WhenBookExists()
+    {
+        // Arrange
+        var consoleMock = new Mock<IConsoleWrapper>();
 
-            // Configurar el BookService para usar el mock
-            BookService.SetConsoleWrapper(_consoleWrapperMock.Object);
-            ValidateInput.SetConsoleWrapper(_consoleWrapperMock.Object);
+        consoleMock.SetupSequence(cw => cw.ReadLine())
+            .Returns("")
+            .Returns("El Quijote")
+            .Returns("")
+            .Returns("Miguel de Cervantes")
+            .Returns("")
+            .Returns("Novela");
 
-            // Añadir los libros
-            BookService.Add(); // Añadir el primer libro
-            BookService.Add(); // Añadir el segundo libro
+        BookService.SetConsoleWrapper(consoleMock.Object);
+        ValidateInput.SetConsoleWrapper(consoleMock.Object);
 
-            // Act
-            var result = BookService.GetAll();
+        BookService.Add();
 
-            // Assert
-            var expectedOutput =
-                "|ID       |Título             |Autor              |Categoría          |Disponible\r\n" +
-                "|1        |El Quijote         |Miguel de Cervantes|Novela             |Sí       \r\n" +
-                "|2        |1984               |George Orwell      |Distopía           |Sí       \r\n";
+        consoleMock.Setup(cw => cw.ReadLine()).Returns("1");
 
-            Assert.Equal(expectedOutput, result);
-        }
+        // Act
+        var result = BookService.Delete();
 
-        [Fact]
-        public void Delete_ShouldRemoveBook_WhenBookExists()
-        {
-            // Arrange
-            var consoleMock = new Mock<IConsoleWrapper>();
+        // Assert
+        var expectedMessage = "El libro con el id 1 ha sido eliminado correctamente";
+        result.Should().Be(expectedMessage);
+    }
 
-            // Simular la adición de un libro
-            consoleMock.SetupSequence(cw => cw.ReadLine())
-                .Returns("")                 // Primer intento vacío para título
-                .Returns("El Quijote")       // Título del primer libro
-                .Returns("")                 // Primer intento vacío para autor
-                .Returns("Miguel de Cervantes") // Autor del primer libro
-                .Returns("")                 // Primer intento vacío para categoría
-                .Returns("Novela");           // Categoría del primer libro
+    [Fact]
+    public void Delete_ShouldReturnErrorMessage_WhenBookDoesNotExist()
+    {
+        // Arrange
+        var consoleMock = new Mock<IConsoleWrapper>();
 
-            // Configurar el BookService y ValidateInput con el mock
-            BookService.SetConsoleWrapper(consoleMock.Object);
-            ValidateInput.SetConsoleWrapper(consoleMock.Object);
+        consoleMock.Setup(cw => cw.ReadLine()).Returns("99");
 
-            // Añadir un libro
-            BookService.Add();
+        BookService.SetConsoleWrapper(consoleMock.Object);
 
-            // Configurar el mock para simular la entrada del usuario para eliminar un libro
-            consoleMock.Setup(cw => cw.ReadLine()).Returns("1");
+        // Act
+        var result = BookService.Delete();
 
-            // Act
-            var result = BookService.Delete();
+        // Assert
+        var expectedMessage = "El libro con Id 99 no existe";
+        result.Should().Be(expectedMessage);
+    }
 
-            // Assert
-            var expectedMessage = "El libro con el id 1 ha sido eliminado correctamente";
-            Assert.Equal(expectedMessage, result);
-        }
+    [Fact]
+    public void GetById_ShouldReturnBookDetails_WhenBookExists()
+    {
+        // Arrange
+        var consoleMock = new Mock<IConsoleWrapper>();
 
-        [Fact]
-        public void Delete_ShouldReturnErrorMessage_WhenBookDoesNotExist()
-        {
-            // Arrange
-            var consoleMock = new Mock<IConsoleWrapper>();
+        consoleMock.SetupSequence(cw => cw.ReadLine())
+            .Returns("")
+            .Returns("Updated Title")
+            .Returns("")
+            .Returns("Updated Author")
+            .Returns("")
+            .Returns("Updated Category");
 
-            // Configurar el mock para simular la entrada del usuario con un ID inexistente
-            consoleMock.Setup(cw => cw.ReadLine()).Returns("99");
+        BookService.SetConsoleWrapper(consoleMock.Object);
+        ValidateInput.SetConsoleWrapper(consoleMock.Object);
 
-            // Configurar el BookService con el mock
-            BookService.SetConsoleWrapper(consoleMock.Object);
+        BookService.Add();
 
-            // Act
-            var result = BookService.Delete();
+        consoleMock.Setup(cw => cw.ReadLine()).Returns("1");
 
-            // Assert
-            var expectedMessage = "El libro con Id 99 no existe";
-            Assert.Equal(expectedMessage, result);
-        }
+        // Act
+        var result = BookService.GetById();
 
-        [Fact]
-        public void GetById_ShouldReturnBookDetails_WhenBookExists()
-        {
-            // Arrange
-            var consoleMock = new Mock<IConsoleWrapper>();
-
-            // Simular la adición de un libro
-            consoleMock.SetupSequence(cw => cw.ReadLine())
-                .Returns("")
-                .Returns("Updated Title")  // Título actualizado
-                .Returns("")
-                .Returns("Updated Author")  // Autor actualizado
-                .Returns("")
-                .Returns("Updated Category");  // Categoría actualizada
-
-            // Configurar el BookService con el mock
-            BookService.SetConsoleWrapper(consoleMock.Object);
-            ValidateInput.SetConsoleWrapper(consoleMock.Object);
-
-            // Añadir un libro
-            BookService.Add();
-
-            // Configurar el mock para simular la entrada del usuario para buscar un libro por ID
-            consoleMock.Setup(cw => cw.ReadLine()).Returns("1");
-
-            // Act
-            var result = BookService.GetById();
-
-            // Assert
-
-            Console.WriteLine(result);
-
-            var expectedOutput = $@"|ID       |Título             |Autor              |Categoría          |Disponible
+        // Assert
+        var expectedOutput = $@"|ID       |Título             |Autor              |Categoría          |Disponible
 |1        |Updated Title      |Updated Author     |Updated Category   |Sí       
 ";
 
+        result.Should().Be(expectedOutput);
+    }
 
-            Assert.Equal(expectedOutput, result);
-        }
+    [Fact]
+    public void GetById_ShouldReturnErrorMessage_WhenBookDoesNotExist()
+    {
+        // Arrange
+        var consoleMock = new Mock<IConsoleWrapper>();
 
-        [Fact]
-        public void GetById_ShouldReturnErrorMessage_WhenBookDoesNotExist()
-        {
-            // Arrange
-            var consoleMock = new Mock<IConsoleWrapper>();
+        consoleMock.Setup(cw => cw.ReadLine()).Returns("99");
 
-            // Configurar el mock para simular la entrada del usuario con un ID inexistente
-            consoleMock.Setup(cw => cw.ReadLine()).Returns("99");
+        BookService.SetConsoleWrapper(consoleMock.Object);
 
-            // Configurar el BookService con el mock
-            BookService.SetConsoleWrapper(consoleMock.Object);
+        // Act
+        var result = BookService.GetById();
 
-            // Act
-            var result = BookService.GetById();
-
-            // Assert
-            var expectedMessage = "El libro con Id 99 no existe";
-            Assert.Equal(expectedMessage, result);
-        }
-
-
+        // Assert
+        var expectedMessage = "El libro con Id 99 no existe";
+        result.Should().Be(expectedMessage);
     }
 }
