@@ -97,7 +97,7 @@ public class BookServiceTests
             .Returns("")
             .Returns("George Orwell")
             .Returns("")
-            .Returns("DistopÌa");
+            .Returns("Distop√≠a");
 
         BookService.SetConsoleWrapper(_consoleWrapperMock.Object);
         ValidateInput.SetConsoleWrapper(_consoleWrapperMock.Object);
@@ -112,11 +112,11 @@ public class BookServiceTests
         var builder = new StringBuilder();
 
         // Agregar encabezado
-        builder.AppendLine("|ID".PadRight(10) + "|TÌtulo".PadRight(20) + "|Autor".PadRight(20) + "|CategorÌa".PadRight(20) + "|Disponible".PadRight(10));
+        builder.AppendLine("|ID".PadRight(10) + "|T√≠tulo".PadRight(20) + "|Autor".PadRight(20) + "|Categor√≠a".PadRight(20) + "|Disponible".PadRight(10));
 
-        // Agregar datos est·ticos
-        builder.AppendLine("|1".PadRight(10) + "|El Quijote".PadRight(20) + "|Miguel de Cervantes".PadRight(20) + "|Novela".PadRight(20) + "|SÌ".PadRight(10));
-        builder.AppendLine("|2".PadRight(10) + "|1984".PadRight(20) + "|George Orwell".PadRight(20) + "|DistopÌa".PadRight(20) + "|SÌ".PadRight(10));
+        // Agregar datos est√°ticos
+        builder.AppendLine("|1".PadRight(10) + "|El Quijote".PadRight(20) + "|Miguel de Cervantes".PadRight(20) + "|Novela".PadRight(20) + "|S√≠".PadRight(10));
+        builder.AppendLine("|2".PadRight(10) + "|1984".PadRight(20) + "|George Orwell".PadRight(20) + "|Distop√≠a".PadRight(20) + "|S√≠".PadRight(10));
 
         var normalizedExpected = Normalize(builder.ToString());
         var normalizedResult = Normalize(result);
@@ -136,7 +136,7 @@ public class BookServiceTests
 
     private string Normalize(string input)
     {
-        // Normaliza la cadena a FormC para evitar problemas con la codificaciÛn de caracteres especiales
+        // Normaliza la cadena a FormC para evitar problemas con la codificaci√≥n de caracteres especiales
         return input.Normalize(NormalizationForm.FormC);
     }
 
@@ -215,8 +215,8 @@ public class BookServiceTests
         var result = BookService.GetById();
 
         // Assert
-        var expectedOutput = $@"|ID       |TÌtulo             |Autor              |CategorÌa          |Disponible
-|1        |Updated Title      |Updated Author     |Updated Category   |SÌ       
+        var expectedOutput = $@"|ID       |T√≠tulo             |Autor              |Categor√≠a          |Disponible
+|1        |Updated Title      |Updated Author     |Updated Category   |S√≠       
 ";
 
         result.Should().Be(expectedOutput);
