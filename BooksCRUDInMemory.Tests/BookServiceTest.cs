@@ -2,6 +2,7 @@ using BooksCRUDInMemory.Service;
 using BooksCRUDInMemory.Utils;
 using FluentAssertions;
 using Moq;
+using System.Text;
 
 namespace BooksCRUDInMemory.Tests;
 
@@ -78,6 +79,7 @@ public class BookServiceTests
         result.Should().Be(expectedMessage);
     }
 
+
     [Fact]
     public void GetAll_ShouldReturnBooksList()
     {
@@ -106,7 +108,10 @@ public class BookServiceTests
         var result = BookService.GetAll();
 
         // Assert
-        var expectedOutput = $@"|ID       |Título             |Autor              |Categoría          |Disponible\n|1        |El Quijote         |Miguel de Cervantes|Novela             |Sí       \n|2        |1984               |George Orwell      |Distopía           |Sí       \n";
+        var expectedOutput = $@"|ID       |Título             |Autor              |Categoría          |Disponible
+|1        |El Quijote         |Miguel de Cervantes|Novela             |Sí       
+|2        |1984               |George Orwell      |Distopía           |Sí       
+";
 
         var normalizedExpected = Normalize(expectedOutput);
         var normalizedResult = Normalize(result);
@@ -124,14 +129,13 @@ public class BookServiceTests
         }
     }
 
-    // Método para normalizar la cadena
     private string Normalize(string input)
     {
-        return string.Join("\n", input.Trim()
-                                      .Replace("\r\n", "\n")
-                                      .Split('\n')
-                                      .Select(line => line.TrimEnd()));
+        // Normaliza la cadena a FormC para evitar problemas con la codificación de caracteres especiales
+        return input.Normalize(NormalizationForm.FormC);
     }
+
+
 
 
     [Fact]
