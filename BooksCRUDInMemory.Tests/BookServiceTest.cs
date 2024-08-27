@@ -2,6 +2,7 @@ using BooksCRUDInMemory.Service;
 using BooksCRUDInMemory.Utils;
 using FluentAssertions;
 using Moq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace BooksCRUDInMemory.Tests;
@@ -108,12 +109,16 @@ public class BookServiceTests
         var result = BookService.GetAll();
 
         // Assert
-        var expectedOutput = $@"|ID       |Título             |Autor              |Categoría          |Disponible
-|1        |El Quijote         |Miguel de Cervantes|Novela             |Sí       
-|2        |1984               |George Orwell      |Distopía           |Sí       
-";
+        var builder = new StringBuilder();
 
-        var normalizedExpected = Normalize(expectedOutput);
+        // Agregar encabezado
+        builder.AppendLine("|ID".PadRight(10) + "|Título".PadRight(20) + "|Autor".PadRight(20) + "|Categoría".PadRight(20) + "|Disponible".PadRight(10));
+
+        // Agregar datos estáticos
+        builder.AppendLine("|1".PadRight(10) + "|El Quijote".PadRight(20) + "|Miguel de Cervantes".PadRight(20) + "|Novela".PadRight(20) + "|Sí".PadRight(10));
+        builder.AppendLine("|2".PadRight(10) + "|1984".PadRight(20) + "|George Orwell".PadRight(20) + "|Distopía".PadRight(20) + "|Sí".PadRight(10));
+
+        var normalizedExpected = Normalize(builder.ToString());
         var normalizedResult = Normalize(result);
 
         // Detallar diferencia si la prueba falla
