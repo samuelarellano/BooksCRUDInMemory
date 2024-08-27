@@ -14,14 +14,25 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Validate YAML encoding
+    - name: Ensure files are UTF-8 encoded
       run: |
-        echo "Checking encoding for YAML files..."
-        file -i .github/workflows/dotnet.yml | grep 'charset=utf-8'
-        echo "Checking encoding for test files..."
-        find . -name '*.cs' -exec file -i {} \; | grep 'charset=utf-8'
-        echo "Checking for non-UTF-8 characters..."
-        find . -name '*.cs' -exec cat {} \; | grep -P '[^\x00-\x7F]' || echo "No non-UTF-8 characters detected"
+        echo "Checking encoding for YAML and C# files..."
+        # Check YAML encoding
+        if file -bi .github/workflows/dotnet.yml | grep -q 'charset=utf-8'; then
+          echo "YAML file is encoded in UTF-8."
+        else
+          echo "YAML file is not encoded in UTF-8."
+          exit 1
+        fi
+        # Check C# files encoding
+        for file in $(find . -name '*.cs'); do
+          if file -bi "$file" | grep -q 'charset=utf-8'; then
+            echo "$file is encoded in UTF-8."
+          else
+            echo "$file is not encoded in UTF-8."
+            exit 1
+          fi
+        done
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
