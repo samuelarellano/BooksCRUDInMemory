@@ -1,6 +1,4 @@
 ﻿
-using BooksCRUDInMemory.Service;
-using BooksCRUDInMemory.Utils;
 
 while (true)
 {
